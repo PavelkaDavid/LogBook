@@ -9,13 +9,14 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
+import dev.pavelka.logbook.ui.main.DrivesFragment;
 import dev.pavelka.logbook.ui.main.SectionsPagerAdapter;
+import dev.pavelka.logbook.ui.main.drives.DrivesContent;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+    implements DrivesFragment.OnListFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,5 +36,10 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    @Override
+    public void onListFragmentInteraction(DrivesContent.DriveItem item) {
+
     }
 }
