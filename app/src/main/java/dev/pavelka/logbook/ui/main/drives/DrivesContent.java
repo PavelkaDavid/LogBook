@@ -1,6 +1,9 @@
 package dev.pavelka.logbook.ui.main.drives;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,11 @@ public class DrivesContent {
     static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
-            addItem(createSampleItem(i));
+            try {
+                addItem(createSampleItem(i));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -34,8 +41,13 @@ public class DrivesContent {
         ITEM_MAP.put(item.id, item);
     }
 
-    private static DriveItem createSampleItem(int position) {
-        return new DriveItem(String.valueOf(position), "Start position " + position, "End position " + position, 3 * position, 1.9 * 3 * position);
+    private static DriveItem createSampleItem(int position) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        String fromDate = "05-01-2019 16:35:42";
+        String toDate = "05-01-2019 16:53:34";
+        Date from = dateFormat.parse(fromDate);
+        Date to = dateFormat.parse(toDate);
+        return new DriveItem(String.valueOf(position), "Start position " + position, "End position " + position, 3 * position, 1.9 * 3 * position, from, to);
     }
 
     /**
@@ -45,15 +57,19 @@ public class DrivesContent {
         public final String id;
         public final String from;
         public final String to;
+        public final Date from_datetime;
+        public final Date to_datetime;
         public final double distance;
         public final double price;
 
-        public DriveItem(String id, String from, String to, double distance, double price) {
+        public DriveItem(String id, String from, String to, double distance, double price, Date from_datetime, Date to_datetime) {
             this.id = id;
             this.from = from;
             this.to = to;
             this.distance = distance;
             this.price = price;
+            this.from_datetime = from_datetime;
+            this.to_datetime = to_datetime;
         }
 
         @Override

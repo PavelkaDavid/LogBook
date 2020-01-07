@@ -1,16 +1,22 @@
 package dev.pavelka.logbook.ui.main;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import dev.pavelka.logbook.MainActivity;
 import dev.pavelka.logbook.R;
 import dev.pavelka.logbook.ui.main.DrivesFragment.OnListFragmentInteractionListener;
 import dev.pavelka.logbook.ui.main.drives.DrivesContent;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -37,9 +43,15 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("d.M. HH:mm");
+
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).from);
+        holder.mFromDateView.setText(dateFormat.format(mValues.get(position).from_datetime));
+        holder.mToDateView.setText(dateFormat.format(mValues.get(position).to_datetime));
+        holder.mFromView.setText(mValues.get(position).from);
+        holder.mToView.setText(mValues.get(position).to);
+        holder.mDistanceView.setText(new DecimalFormat("#.##").format(mValues.get(position).distance) + " km");
+        holder.mPriceView.setText(new DecimalFormat("#.##").format(mValues.get(position).price) + " Kč");
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +63,36 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
                 }
             }
         });
+
+        holder.mCardView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // Ask to remove
+                AlertDialog.Builder alert = new AlertDialog.Builder(v.getContext());
+                alert.setTitle("Smazat záznam");
+                alert.setMessage("Opravdu chcete smazat tento záznam?");
+                alert.setPositiveButton("ANO", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do your work here
+                        dialog.dismiss();
+
+                    }
+                });
+                alert.setNegativeButton("NE", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -60,20 +102,30 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
+        public final CardView mCardView;
+        public final TextView mFromDateView;
+        public final TextView mToDateView;
+        public final TextView mFromView;
+        public final TextView mToView;
+        public final TextView mDistanceView;
+        public final TextView mPriceView;
         public DrivesContent.DriveItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.item_number);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mFromDateView = (TextView) view.findViewById(R.id.label_from_datetime);
+            mToDateView = (TextView) view.findViewById(R.id.label_to_datetime);
+            mFromView = (TextView) view.findViewById(R.id.label_from_value);
+            mToView = (TextView) view.findViewById(R.id.label_to_value);
+            mDistanceView = (TextView) view.findViewById(R.id.label_distance_value);
+            mPriceView = (TextView) view.findViewById(R.id.label_price_value);
+            mCardView = (CardView) view.findViewById(R.id.card_drive);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mFromView.getText() + "'";
         }
     }
 }
