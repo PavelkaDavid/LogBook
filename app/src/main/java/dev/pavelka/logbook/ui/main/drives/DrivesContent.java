@@ -1,5 +1,8 @@
 package dev.pavelka.logbook.ui.main.drives;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,6 +10,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import dev.pavelka.logbook.MainActivity;
+import dev.pavelka.logbook.database.DatabaseHandler;
+import dev.pavelka.logbook.database.Drive;
+
+import static android.content.Context.MODE_PRIVATE;
+import static android.database.sqlite.SQLiteDatabase.openOrCreateDatabase;
 
 /**
  * Drives list content
@@ -23,37 +33,73 @@ public class DrivesContent {
      */
     public static final Map<String, DriveItem> ITEM_MAP = new HashMap<String, DriveItem>();
 
-    private static final int COUNT = 25;
+    /**
+     * Context
+     */
+    public static Context CONTEXT = new MainActivity();
 
     static {
-        // Add some sample items.
-        for (int i = 1; i <= COUNT; i++) {
-            try {
-                addItem(createSampleItem(i));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+        //getAllItems();
+    }
+
+    public static void getAllItems() {
+        DatabaseHandler db = new DatabaseHandler(CONTEXT);
+        List<Drive> drivesList = db.getAllDrives();
+
+        for (Drive drive : drivesList) {
+            ITEMS.add(getDriveItemFromDrive(drive));
+            ITEM_MAP.put(getDriveItemFromDrive(drive).id, getDriveItemFromDrive(drive));
         }
     }
 
-    private static void addItem(DriveItem item) {
+    public static void addItem(DriveItem item) {
+        DatabaseHandler db = new DatabaseHandler(CONTEXT);
+        db.addDrive(getDriveFromDriveItem(item));
         ITEMS.add(item);
         ITEM_MAP.put(item.id, item);
     }
 
-    private static DriveItem createSampleItem(int position) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        String fromDate = "05-01-2019 16:35:42";
-        String toDate = "05-01-2019 16:53:34";
-        Date from = dateFormat.parse(fromDate);
-        Date to = dateFormat.parse(toDate);
-        return new DriveItem(String.valueOf(position), "Start position " + position, "End position " + position, 3 * position, 1.9 * 3 * position, from, to);
+    public static void removeItem(DriveItem item) {
+        DatabaseHandler db = new DatabaseHandler(CONTEXT);
+        db.deleteDrive(getDriveFromDriveItem(item));
+        ITEMS.remove(item);
+    }
+
+    private static Drive getDriveFromDriveItem(DriveItem item) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+        Drive drive = new Drive();
+        drive.setID(Integer.parseInt(item.id));
+        drive.setFromDate(dateFormat.format(item.from_datetime));
+        drive.setToDate(dateFormat.format(item.to_datetime));
+        drive.setFrom(item.from);
+        drive.setTo(item.to);
+        drive.setDistance(item.distance);
+        drive.setPrice(item.price);
+
+        return drive;
+    }
+
+    private static DriveItem getDriveItemFromDrive(Drive drive) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+        DriveItem item = null;
+        try {
+            item = new DriveItem(drive.getID() + "", drive.getFrom(), drive.getTo(),
+                    drive.getDistance(), drive.getPrice(), dateFormat.parse(drive.getFromDate()),
+                    dateFormat.parse(drive.getToDate()));
+            return item;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     /**
      * A dummy item representing a piece of content.
      */
-    public static class DriveItem {
+    public static class DriveItem implements Comparable<DriveItem> {
         public final String id;
         public final String from;
         public final String to;
@@ -70,6 +116,14 @@ public class DrivesContent {
             this.price = price;
             this.from_datetime = from_datetime;
             this.to_datetime = to_datetime;
+        }
+
+        @Override
+        public int compareTo(DriveItem u) {
+            if (from_datetime == null || u.from_datetime == null) {
+                return 0;
+            }
+            return from_datetime.compareTo(u.from_datetime);
         }
 
         @Override

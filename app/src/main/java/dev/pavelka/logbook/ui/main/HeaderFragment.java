@@ -67,8 +67,8 @@ public class HeaderFragment extends Fragment {
                 month = month + 1;
 
                 Log.d( "onDateSet" , month + "/" + day + "/" + year );
-                dateFrom.setText( new StringBuilder().append( day ).append( "-" )
-                        .append( month ).append( "-" ).append( year ) );
+                dateFrom.setText( new StringBuilder().append( day ).append( "." )
+                        .append( month ).append( "." ).append( year ) );
             }
         };
 
@@ -78,8 +78,8 @@ public class HeaderFragment extends Fragment {
                 month = month + 1;
 
                 Log.d( "onDateSet" , month + "/" + day + "/" + year );
-                dateTo.setText( new StringBuilder().append( day ).append( "-" )
-                        .append( month ).append( "-" ).append( year ) );
+                dateTo.setText( new StringBuilder().append( day ).append( "." )
+                        .append( month ).append( "." ).append( year ) );
             }
         };
 

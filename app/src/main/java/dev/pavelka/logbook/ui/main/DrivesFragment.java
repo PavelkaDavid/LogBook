@@ -1,6 +1,7 @@
 package dev.pavelka.logbook.ui.main;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,9 +12,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import dev.pavelka.logbook.AddDriveActivity;
 import dev.pavelka.logbook.R;
 import dev.pavelka.logbook.ui.main.drives.DrivesContent;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A fragment representing a list of Items.
@@ -23,11 +34,14 @@ import dev.pavelka.logbook.ui.main.drives.DrivesContent;
  */
 public class DrivesFragment extends Fragment {
 
+    static final int ADD_DRIVE_REQUEST = 1;
+
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    MyDriveRecyclerViewAdapter myDriveRecyclerViewAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -58,6 +72,18 @@ public class DrivesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        myDriveRecyclerViewAdapter = new MyDriveRecyclerViewAdapter(DrivesContent.ITEMS, mListener);
+
+        FloatingActionButton fab = getActivity().findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), AddDriveActivity.class);
+                startActivityForResult(i, ADD_DRIVE_REQUEST);
+            }
+        });
+
         View view = inflater.inflate(R.layout.fragment_drive_list, container, false);
 
         // Set the adapter
@@ -69,7 +95,7 @@ public class DrivesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyDriveRecyclerViewAdapter(DrivesContent.ITEMS, mListener));
+            recyclerView.setAdapter(myDriveRecyclerViewAdapter);
         }
         return view;
     }
@@ -90,6 +116,37 @@ public class DrivesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // check that it is the AddDriveActivity with an OK result
+        if (requestCode == ADD_DRIVE_REQUEST) {
+            if (resultCode == RESULT_OK) { // Activity.RESULT_OK
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+                Date fromDate = new Date();
+                Date toDate = new Date();
+                try {
+                    fromDate = dateFormat.parse(data.getStringExtra("fromDate"));
+                    toDate = dateFormat.parse(data.getStringExtra("toDate"));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                String from = data.getStringExtra("from");
+                String to = data.getStringExtra("to");
+                double distance = Double.parseDouble(data.getStringExtra("distance"));
+                double price = Double.parseDouble(data.getStringExtra("price")) * distance;
+
+                DrivesContent.DriveItem drive = new DrivesContent.DriveItem(from, from, to, distance, price, fromDate, toDate);
+
+                myDriveRecyclerViewAdapter.addItem(drive);
+
+                Toast.makeText(getContext(), "Jízda byla přidána", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     /**

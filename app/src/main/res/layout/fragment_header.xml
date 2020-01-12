@@ -9,7 +9,7 @@
 
     <EditText
         android:id="@+id/dateFrom"
-        android:layout_width="153dp"
+        android:layout_width="100dp"
         android:layout_height="39dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
@@ -18,22 +18,37 @@
         android:focusable="false"
         android:hint="@string/from"
         android:inputType="date"
+        android:textColor="@android:color/primary_text_dark"
+        android:textColorHint="@android:color/secondary_text_dark"
+        android:backgroundTint="@android:color/primary_text_dark"
         app:layout_constraintEnd_toStartOf="@+id/dateTo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/dateTo"
-        android:layout_width="153dp"
+        android:layout_width="100dp"
         android:layout_height="39dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:clickable="true"
         android:ems="10"
         android:focusable="false"
         android:hint="@string/to"
         android:inputType="date"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@android:color/primary_text_dark"
+        android:textColorHint="@android:color/secondary_text_dark"
+        android:backgroundTint="@android:color/primary_text_dark"
+        app:layout_constraintEnd_toStartOf="@+id/button_refresh"
         app:layout_constraintStart_toEndOf="@+id/dateFrom"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@android:string/ok"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/dateTo"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

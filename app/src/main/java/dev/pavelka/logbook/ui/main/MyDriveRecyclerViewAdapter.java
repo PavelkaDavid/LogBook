@@ -17,6 +17,8 @@ import dev.pavelka.logbook.ui.main.drives.DrivesContent;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,6 +34,16 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
     public MyDriveRecyclerViewAdapter(List<DrivesContent.DriveItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
+
+        Collections.sort(mValues);
+        Collections.reverse(mValues);
+    }
+
+    public void addItem(DrivesContent.DriveItem item) {
+        DrivesContent.addItem(item);
+        Collections.sort(mValues);
+        Collections.reverse(mValues);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -42,7 +54,7 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("d.M. HH:mm");
 
         holder.mItem = mValues.get(position);
@@ -75,9 +87,10 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //do your work here
+                        DrivesContent.removeItem(mValues.get(position));
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, mValues.size());
                         dialog.dismiss();
-
                     }
                 });
                 alert.setNegativeButton("NE", new DialogInterface.OnClickListener() {

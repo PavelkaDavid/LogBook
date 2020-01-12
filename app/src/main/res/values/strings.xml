@@ -9,4 +9,13 @@
     <string name="label_to_destination">Do:</string>
     <string name="label_distance">Vzdálenost:</string>
     <string name="label_price">Cena:</string>
+    <string name="title_activity_add_drive">Přidat jízdu</string>
+    <string name="button_add_drive">Přidat</string>
+    <string name="text_from">Místo počátku cesty</string>
+    <string name="text_from_date">Čas počátku</string>
+    <string name="text_to">Místo konce cesty</string>
+    <string name="text_to_date">Čas konce</string>
+    <string name="text_distance">Vzdálenost (km)</string>
+    <string name="text_price">Náklady na 1 km (Kč)</string>
+
 </resources>
