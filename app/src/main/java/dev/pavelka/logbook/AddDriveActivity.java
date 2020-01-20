@@ -50,7 +50,8 @@ public class AddDriveActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                setResult(RESULT_CANCELED);
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

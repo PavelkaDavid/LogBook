@@ -12,13 +12,17 @@ import android.widget.TextView;
 
 import dev.pavelka.logbook.MainActivity;
 import dev.pavelka.logbook.R;
+import dev.pavelka.logbook.database.Drive;
 import dev.pavelka.logbook.ui.main.DrivesFragment.OnListFragmentInteractionListener;
 import dev.pavelka.logbook.ui.main.drives.DrivesContent;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,18 +35,33 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
     private final List<DrivesContent.DriveItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyDriveRecyclerViewAdapter(List<DrivesContent.DriveItem> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
+    public MyDriveRecyclerViewAdapter(OnListFragmentInteractionListener listener) {
+        mValues = new ArrayList<>();
         mListener = listener;
-
-        Collections.sort(mValues);
-        Collections.reverse(mValues);
     }
 
     public void addItem(DrivesContent.DriveItem item) {
         DrivesContent.addItem(item);
+        mValues.add(item);
         Collections.sort(mValues);
         Collections.reverse(mValues);
+        notifyDataSetChanged();
+    }
+
+    public void fillByDate(Date from, Date to) {
+        mValues.clear();
+
+        for(DrivesContent.DriveItem item : DrivesContent.ITEMS) {
+            if (item.from_datetime.compareTo(from) >= 0 && item.from_datetime.compareTo(to) <= 0) {
+                mValues.add(item);
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void clearList() {
+        mValues.clear();
         notifyDataSetChanged();
     }
 
@@ -50,6 +69,7 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_drive, parent, false);
+
         return new ViewHolder(view);
     }
 
@@ -88,6 +108,7 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         DrivesContent.removeItem(mValues.get(position));
+                        mValues.remove(mValues.get(position));
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, mValues.size());
                         dialog.dismiss();

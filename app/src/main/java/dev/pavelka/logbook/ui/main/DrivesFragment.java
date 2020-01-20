@@ -12,12 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import dev.pavelka.logbook.AddDriveActivity;
@@ -36,9 +38,7 @@ public class DrivesFragment extends Fragment {
 
     static final int ADD_DRIVE_REQUEST = 1;
 
-    // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     MyDriveRecyclerViewAdapter myDriveRecyclerViewAdapter;
@@ -72,8 +72,9 @@ public class DrivesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        myDriveRecyclerViewAdapter = new MyDriveRecyclerViewAdapter(DrivesContent.ITEMS, mListener);
+        myDriveRecyclerViewAdapter = new MyDriveRecyclerViewAdapter(mListener);
 
+        // FAB
         FloatingActionButton fab = getActivity().findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +82,26 @@ public class DrivesFragment extends Fragment {
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), AddDriveActivity.class);
                 startActivityForResult(i, ADD_DRIVE_REQUEST);
+            }
+        });
+
+        // REFRESH
+        Calendar calFrom = Calendar.getInstance();
+        calFrom.add(Calendar.DATE, -7);
+        Calendar calTo = Calendar.getInstance();
+
+        EditText dateFrom = getActivity().findViewById(R.id.dateFrom);
+        EditText dateTo = getActivity().findViewById(R.id.dateTo);
+
+        dateFrom.setText(calFrom.get(Calendar.DAY_OF_MONTH) + "." + calFrom.get(Calendar.MONTH) + 1 + "." + calFrom.get(Calendar.YEAR));
+        dateTo.setText(calTo.get(Calendar.DAY_OF_MONTH) + "." + calTo.get(Calendar.MONTH) + 1 + "." + calTo.get(Calendar.YEAR));
+
+        refresh();
+
+        getActivity().findViewById(R.id.button_refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
             }
         });
 
@@ -98,6 +119,30 @@ public class DrivesFragment extends Fragment {
             recyclerView.setAdapter(myDriveRecyclerViewAdapter);
         }
         return view;
+    }
+
+    public void refresh() {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("d.M.yyyy HH:mm");
+
+        final EditText dateFrom = (EditText) getActivity().findViewById(R.id.dateFrom);
+        final EditText dateTo = (EditText) getActivity().findViewById(R.id.dateTo);
+
+        try {
+            Date from = dateFormat.parse(dateFrom.getText().toString() + " 00:00");
+            Date to = dateFormat.parse(dateTo.getText().toString() + " 23:59");
+
+            if (from.compareTo(to) > 0) {
+                throw new Exception("Počáteční datum musí být menší než konečné");
+            }
+
+            myDriveRecyclerViewAdapter.fillByDate(from, to);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Vyberte prosím rozmezí", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -140,7 +185,7 @@ public class DrivesFragment extends Fragment {
                 double distance = Double.parseDouble(data.getStringExtra("distance"));
                 double price = Double.parseDouble(data.getStringExtra("price")) * distance;
 
-                DrivesContent.DriveItem drive = new DrivesContent.DriveItem(from, from, to, distance, price, fromDate, toDate);
+                DrivesContent.DriveItem drive = new DrivesContent.DriveItem(null, from, to, distance, price, fromDate, toDate);
 
                 myDriveRecyclerViewAdapter.addItem(drive);
 

@@ -13,9 +13,6 @@
             android:name=".AddDriveActivity"
             android:label="@string/title_activity_add_drive"
             android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="dev.pavelka.logbook.MainActivity" />
         </activity>
         <activity
             android:name=".MainActivity"

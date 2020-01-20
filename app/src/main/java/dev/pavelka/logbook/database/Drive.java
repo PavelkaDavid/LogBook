@@ -13,6 +13,10 @@ public class Drive {
 
     }
 
+    public Drive(Drive drive) {
+        this(drive.id, drive.fromDate, drive.toDate, drive.from, drive.to, drive.distance, drive.price);
+    }
+
     public Drive(String fromDate, String toDate, String from, String to, double distance, double price) {
         this.fromDate = fromDate;
         this.toDate = toDate;

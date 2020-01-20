@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,8 +45,14 @@ public class DrivesContent {
 
     public static void getAllItems() {
         DatabaseHandler db = new DatabaseHandler(CONTEXT);
-        List<Drive> drivesList = db.getAllDrives();
 
+        List<Drive> drivesList = new ArrayList<>();
+        for (Drive drive : db.getAllDrives()) {
+            drivesList.add(new Drive(drive));
+        }
+
+        ITEMS.clear();
+        ITEM_MAP.clear();
         for (Drive drive : drivesList) {
             ITEMS.add(getDriveItemFromDrive(drive));
             ITEM_MAP.put(getDriveItemFromDrive(drive).id, getDriveItemFromDrive(drive));
@@ -69,7 +76,9 @@ public class DrivesContent {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
         Drive drive = new Drive();
-        drive.setID(Integer.parseInt(item.id));
+        if (item.id != null) {
+            drive.setID(Integer.parseInt(item.id));
+        }
         drive.setFromDate(dateFormat.format(item.from_datetime));
         drive.setToDate(dateFormat.format(item.to_datetime));
         drive.setFrom(item.from);
