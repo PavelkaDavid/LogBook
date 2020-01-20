@@ -17,5 +17,9 @@
     <string name="text_to_date">Čas konce</string>
     <string name="text_distance">Vzdálenost (km)</string>
     <string name="text_price">Náklady na 1 km (Kč)</string>
+    <string name="text_total_distance">Ujetá vzdálenost:</string>
+    <string name="text_total_price">Cena celkem:</string>
+    <string name="text_km">km</string>
+    <string name="text_czk">Kč</string>
 
 </resources>

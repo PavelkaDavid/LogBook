@@ -20,6 +20,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2};
     private final Context mContext;
 
+    private final DrivesFragment drivesFragment = DrivesFragment.newInstance(0);
+    private final StatisticsFragment statisticsFragment = StatisticsFragment.newInstance(1);
+
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
@@ -32,10 +35,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         {
             case 0:
                 // Drives List
-                return DrivesFragment.newInstance(1);
+                return drivesFragment;
             default:
                 // Statistics
-                return StatisticsFragment.newInstance(position);
+                statisticsFragment.drivesFragment = drivesFragment;
+                return statisticsFragment;
         }
     }
 

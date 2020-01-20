@@ -63,6 +63,10 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
         notifyDataSetChanged();
     }
 
+    public List<DrivesContent.DriveItem> getmValues() {
+        return mValues;
+    }
+
     public void clearList() {
         mValues.clear();
         notifyDataSetChanged();

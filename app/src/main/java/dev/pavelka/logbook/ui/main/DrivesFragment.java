@@ -13,14 +13,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import dev.pavelka.logbook.AddDriveActivity;
 import dev.pavelka.logbook.R;
@@ -96,7 +101,7 @@ public class DrivesFragment extends Fragment {
         dateFrom.setText(calFrom.get(Calendar.DAY_OF_MONTH) + "." + calFrom.get(Calendar.MONTH) + 1 + "." + calFrom.get(Calendar.YEAR));
         dateTo.setText(calTo.get(Calendar.DAY_OF_MONTH) + "." + calTo.get(Calendar.MONTH) + 1 + "." + calTo.get(Calendar.YEAR));
 
-        refresh();
+        //refresh();
 
         getActivity().findViewById(R.id.button_refresh).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +131,9 @@ public class DrivesFragment extends Fragment {
 
         final EditText dateFrom = (EditText) getActivity().findViewById(R.id.dateFrom);
         final EditText dateTo = (EditText) getActivity().findViewById(R.id.dateTo);
+        final TextView totalDistance = (TextView) getActivity().findViewById(R.id.text_total_distance);
+        final TextView totalPrice = (TextView) getActivity().findViewById(R.id.text_total_price);
+        final GraphView graph = (GraphView) getActivity().findViewById(R.id.graph);
 
         try {
             Date from = dateFormat.parse(dateFrom.getText().toString() + " 00:00");
@@ -136,6 +144,31 @@ public class DrivesFragment extends Fragment {
             }
 
             myDriveRecyclerViewAdapter.fillByDate(from, to);
+
+            // Graph
+            if (graph == null) {
+                return;
+            }
+
+            List<DrivesContent.DriveItem> data = myDriveRecyclerViewAdapter.getmValues();
+            double totalDistanceVal = 0;
+            double totalPriceVal = 0;
+            DataPoint[] dataPoints = new DataPoint[data.size()];
+
+            int i = 0;
+            for (DrivesContent.DriveItem item : data) {
+                totalDistanceVal += item.distance;
+                totalPriceVal += item.price;
+                dataPoints[i] = new DataPoint(i, item.distance);
+                i++;
+            }
+
+            totalDistance.setText(totalDistanceVal + "");
+            totalPrice.setText(totalPriceVal + "");
+
+            LineGraphSeries<DataPoint> series = new LineGraphSeries <> (dataPoints);
+            graph.removeAllSeries();
+            graph.addSeries(series);
         } catch (ParseException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Vyberte prosím rozmezí", Toast.LENGTH_LONG).show();
