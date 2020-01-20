@@ -57,6 +57,9 @@ public class MyDriveRecyclerViewAdapter extends RecyclerView.Adapter<MyDriveRecy
             }
         }
 
+        Collections.sort(mValues);
+        Collections.reverse(mValues);
+
         notifyDataSetChanged();
     }
 
