@@ -2,6 +2,7 @@ package dev.pavelka.logbook.ui.main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -20,7 +21,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.opencsv.CSVWriter;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -90,6 +95,18 @@ public class DrivesFragment extends Fragment {
             }
         });
 
+        // EXPORT
+        getActivity().findViewById(R.id.button_export).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    exportCSV();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         // REFRESH
         Calendar calFrom = Calendar.getInstance();
         calFrom.add(Calendar.DATE, -7);
@@ -155,12 +172,12 @@ public class DrivesFragment extends Fragment {
             double totalPriceVal = 0;
             DataPoint[] dataPoints = new DataPoint[data.size()];
 
-            int i = 0;
+            int i = data.size() - 1;
             for (DrivesContent.DriveItem item : data) {
                 totalDistanceVal += item.distance;
                 totalPriceVal += item.price;
                 dataPoints[i] = new DataPoint(i, item.distance);
-                i++;
+                i--;
             }
 
             totalDistance.setText(totalDistanceVal + "");
@@ -176,6 +193,65 @@ public class DrivesFragment extends Fragment {
             e.printStackTrace();
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void exportCSV() throws IOException {
+        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String fileName = "export_drives.csv";
+        String filePath = baseDir + File.separator + fileName;
+        File f = new File(filePath);
+        CSVWriter writer;
+
+        // File exist
+        if(f.exists()&&!f.isDirectory())
+        {
+            FileWriter mFileWriter = new FileWriter(filePath, false);
+            writer = new CSVWriter(mFileWriter);
+        }
+        else
+        {
+            f.createNewFile();
+            writer = new CSVWriter(new FileWriter(filePath));
+        }
+
+        // Head
+        String[] data = { "Datum počátku", "Počátek", "Datum konce", "Konec", "Vzdálenost (km)", "Cena (Kč)" };
+        writer.writeNext(data);
+
+        // Data
+        List<DrivesContent.DriveItem> values = myDriveRecyclerViewAdapter.getmValues();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+        for (DrivesContent.DriveItem item : values) {
+            String[] row = {
+                    dateFormat.format(item.from_datetime),
+                    item.from,
+                    dateFormat.format(item.to_datetime),
+                    item.to,
+                    item.distance + "",
+                    item.price + ""
+            };
+
+            writer.writeNext(row);
+        }
+
+        writer.close();
+
+        // Share
+        Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+
+        if(f.exists()) {
+            intentShareFile.setType("application/pdf");
+            intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + filePath));
+
+            intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
+                    "Export jízd");
+            intentShareFile.putExtra(Intent.EXTRA_TEXT, "Jízdy exportovány z LogBook");
+
+            startActivity(Intent.createChooser(intentShareFile, "Sdílet soubor CSV"));
+        }
+
+        Toast.makeText(getContext(), "Exportováno do: " + filePath, Toast.LENGTH_LONG).show();
     }
 
 
