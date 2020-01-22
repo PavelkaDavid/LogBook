@@ -1,4 +1,4 @@
-#LogBook
+# LogBook
 Aplikace pro zaznamenání jízd automobilem.
 
 Uživatel při zadávání jízdy vyplní počáteční pozici, finální pozici, počet km a náklady v Kč na jeden kilometr (tato hodnota bude po prvním vyplnění uložena a poté **předvyplněna** pomocí Shared Preferences).
@@ -16,7 +16,7 @@ Pomocí tlačítka **exportovatování do formátu CSV** uložíme vybrané jíz
 Data jsou uloženy v **SQLite**.
 
 
-###Funkce
+### Funkce
 - Databáze SQLite
 - Shared Preferences
 - Geo lokace
@@ -25,3 +25,6 @@ Data jsou uloženy v **SQLite**.
 - Sdílení souboru
 - Graf
 - Pokročilé GUI – taby, listy, karty
+
+### Video
+[odkaz na video](https://photos.app.goo.gl/1sc75BsUxQfjrZ738)
