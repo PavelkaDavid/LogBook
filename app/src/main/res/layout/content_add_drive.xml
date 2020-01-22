@@ -13,11 +13,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:clickable="true"
         android:ems="10"
+        android:focusable="false"
         android:hint="@string/text_from_date"
         android:inputType="date"
-        android:clickable="true"
-        android:focusable="false"
         android:onClick="onClickFrom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,16 +39,16 @@
         android:id="@+id/toDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
         android:ems="10"
+        android:focusable="false"
         android:hint="@string/text_to_date"
         android:inputType="date"
-        android:clickable="true"
-        android:focusable="false"
         android:onClick="onClickTo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/from" />
+        app:layout_constraintTop_toBottomOf="@+id/button_from_location" />
 
     <EditText
         android:id="@+id/to"
@@ -66,13 +66,13 @@
         android:id="@+id/distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/text_distance"
         android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/to" />
+        app:layout_constraintTop_toBottomOf="@+id/button_to_location" />
 
     <EditText
         android:id="@+id/price"
@@ -96,5 +96,57 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/price" />
+
+    <Button
+        android:id="@+id/button_from_location"
+        android:layout_width="110dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginLeft="50dp"
+        android:drawableLeft="@android:drawable/ic_dialog_map"
+        android:onClick="onClickChooseFrom"
+        android:text="Vybrat"
+        app:layout_constraintEnd_toStartOf="@+id/button_from_gps"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/from" />
+
+    <Button
+        android:id="@+id/button_from_gps"
+        android:layout_width="110dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginRight="50dp"
+        android:drawableLeft="@android:drawable/ic_menu_mylocation"
+        android:onClick="onClickGpsFrom"
+        android:text="GPS"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button_from_location"
+        app:layout_constraintTop_toBottomOf="@+id/from" />
+
+    <Button
+        android:id="@+id/button_to_location"
+        android:layout_width="110dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginLeft="50dp"
+        android:drawableLeft="@android:drawable/ic_dialog_map"
+        android:onClick="onClickChooseTo"
+        android:text="Vybrat"
+        app:layout_constraintEnd_toStartOf="@+id/button_to_gps"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to" />
+
+    <Button
+        android:id="@+id/button_to_gps"
+        android:layout_width="110dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginRight="50dp"
+        android:drawableLeft="@android:drawable/ic_menu_mylocation"
+        android:onClick="onClickGpsTo"
+        android:text="GPS"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button_to_location"
+        app:layout_constraintTop_toBottomOf="@+id/to" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

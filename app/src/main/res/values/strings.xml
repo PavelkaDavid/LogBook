@@ -21,5 +21,6 @@
     <string name="text_total_price">Cena celkem:</string>
     <string name="text_km">km</string>
     <string name="text_czk">Kč</string>
+    <string name="google_place_api">AIzaSyBLCEaHsjBV0L0isE2vpxyre3Fi95Pxm60</string>
 
 </resources>

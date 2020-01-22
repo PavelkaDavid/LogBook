@@ -3,8 +3,18 @@ package dev.pavelka.logbook;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -12,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
@@ -19,9 +30,16 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+
+import dev.pavelka.logbook.ui.main.gps.GPSTracker;
 
 public class AddDriveActivity extends AppCompatActivity {
 
@@ -36,6 +54,12 @@ public class AddDriveActivity extends AppCompatActivity {
     int mHour;
     int mMinute;
 
+    int PLACE_FROM_PICKER_REQUEST = 1;
+    int PLACE_TO_PICKER_REQUEST = 2;
+
+    GPSTracker mGPS;
+    SharedPreferences myPrefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +68,33 @@ public class AddDriveActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Preferences
+        myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        String lastPrice = myPrefs.getString("lastPrice", null);
+
+        EditText price = findViewById(R.id.price);
+        price.setText(lastPrice);
+
+        // GPS
+        mGPS = new GPSTracker(this);
+        if (mGPS.canGetLocation) {
+            mGPS.getLocation();
+        }
+
+        // PLACES API
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), getResources().getString(R.string.google_place_api));
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+    }
+
+    @Override
+    public void onStop () {
+        super.onStop();
+
+        mGPS.stopUsingGPS();
     }
 
     @Override
@@ -55,6 +106,57 @@ public class AddDriveActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onClickGpsFrom(View v) {
+        LatLng latLng = new LatLng(mGPS.getLatitude(), mGPS.getLongitude());
+        EditText from = (EditText) findViewById(R.id.from);
+        from.setText(getAddress(latLng));
+    }
+
+    public void onClickGpsTo(View v) {
+        LatLng latLng = new LatLng(mGPS.getLatitude(), mGPS.getLongitude());
+        EditText to = (EditText) findViewById(R.id.to);
+        to.setText(getAddress(latLng));
+    }
+
+    public void onClickChooseFrom(View v) {
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+        // Start the autocomplete intent.
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.FULLSCREEN, fields)
+                .build(this);
+        startActivityForResult(intent, PLACE_FROM_PICKER_REQUEST);
+    }
+
+    public void onClickChooseTo(View v) {
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+        // Start the autocomplete intent.
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.FULLSCREEN, fields)
+                .build(this);
+        startActivityForResult(intent, PLACE_TO_PICKER_REQUEST);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_FROM_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                String address = place.getAddress();
+                EditText from = (EditText) findViewById(R.id.from);
+                from.setText(address);
+            }
+        }
+        else if (requestCode == PLACE_TO_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                String address = place.getAddress();
+                EditText to = (EditText) findViewById(R.id.to);
+                to.setText(address);
+            }
         }
     }
 
@@ -96,6 +198,10 @@ public class AddDriveActivity extends AppCompatActivity {
             Toast.makeText(this, "Vyplňte všechna pole", Toast.LENGTH_LONG).show();
             return;
         }
+
+        SharedPreferences.Editor e = myPrefs.edit();
+        e.putString("lastPrice", price.getText().toString());
+        e.commit();
 
         Intent intent = new Intent();
         intent.putExtra("fromDate", fromDate.getText().toString());
@@ -169,6 +275,44 @@ public class AddDriveActivity extends AppCompatActivity {
 
     public String checkDigit(int number) {
         return number <= 9 ? "0" + number : String.valueOf(number);
+    }
+
+    public String getAddress(LatLng latLng) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses = null;
+
+        try {
+            addresses = geocoder.getFromLocation(
+                    latLng.latitude,
+                    latLng.longitude,
+                    // In this sample, get just a single address.
+                    1);
+        } catch (IOException e) {
+            // Catch network or other I/O problems.
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            // Catch invalid latitude or longitude values.
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Handle case where no address was found.
+        if (addresses == null || addresses.size()  == 0) {
+        } else {
+            Address address = addresses.get(0);
+            ArrayList<String> addressFragments = new ArrayList<String>();
+
+            // Fetch the address lines using getAddressLine,
+            // join them, and send them to the thread.
+            for(int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
+                addressFragments.add(address.getAddressLine(i));
+            }
+            String result = TextUtils.join(System.getProperty("line.separator"), addressFragments);
+            return result;
+        }
+
+        return null;
     }
 
 }
